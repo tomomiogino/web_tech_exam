@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+  </head>
+  <body>
+    <h1>Web技術入門シリーズ課題</h1>
+    <% require 'pg' %>
+    <% connection = PG::connect(dbname: "goya") %>
+    <% connection.internal_encoding = "UTF-8" %>
+    <% notselflist = connection.exec("select weight, give_for from crops where give_for != '自家消費';") %>
+    <% notselfdata = [] %>
+    <% notselflist.each do |record| %>
+      <% notselfdata << "ゴーヤの大きさ：#{record["weight"]}　売った相手：#{record["give_for"]}" %>
+    <% end %>
+    <form action="notself.cgi" method="POST">
+      下記のボタンを押すと、譲渡先が自家消費ではないもののゴーヤの大きさと売った相手の情報ページに飛びます<br><br>
+      <input type="text" name="notself" value="<%= notselfdata.join(' ') %>">
+      <input type="submit" name="送信">
+    </form>
+    <% falselist = connection.exec("select weight, give_for from crops where quality = false;") %>
+    <% falsedata = [] %>
+    <% falselist.each do |record| %>
+      <% falsedata << "ゴーヤの大きさ：#{record["weight"]}　売った相手：#{record["give_for"]}" %>
+    <% end %>
+    <form action="falsequality.cgi" method="POST">
+      下記のボタンを押すと、品質が悪いもののゴーヤの大きさと売った相手の情報ページに飛びます<br><br>
+      <input type="text" name="false" value="<%= falsedata.join(' ') %>">
+      <input type="submit" name="送信">
+    </form>
+  </body>
+</html>
